@@ -1,6 +1,6 @@
 # `@a11ign/documents`
 
-The PDF layer ([ADR 0036](../../docs/adr/0036-the-layer-model.md), #68). Reads a PDF's own accessibility
+The PDF layer ([ADR 0036](https://github.com/a11ign/a11ign/blob/main/docs/adr/0036-the-layer-model.md), #68). Reads a PDF's own accessibility
 **tag tree** directly -- the structure a screen reader or a checker like PAC reads -- rather than
 rendering the document or driving any assistive technology. No browser, no NVDA, no fleet.
 

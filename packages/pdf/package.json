@@ -24,10 +24,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/a11ign/a11ign.git",
+    "url": "git+https://github.com/a11ign/documents.git",
     "directory": "packages/pdf"
   },
-  "homepage": "https://github.com/a11ign/a11ign",
+  "homepage": "https://github.com/a11ign/documents",
   "keywords": [
     "accessibility",
     "a11y",

@@ -1,0 +1,20 @@
+{
+  "name": "documents-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.5",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc --build packages/pdf",
+    "test": "tsx --test \"packages/*/src/**/*.test.ts\" \"scripts/*.test.ts\"",
+    "smoke": "node scripts/pack-smoke.mjs",
+    "release:version": "changeset version && pnpm install --lockfile-only",
+    "release:plan": "node scripts/release-plan.mjs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.3",
+    "@types/node": "^26.6.3",
+    "tsx": "4.23.15",
+    "typescript": "^6.0.3"
+  }
+}

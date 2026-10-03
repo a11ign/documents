@@ -1,0 +1,34 @@
+# The merge gate. Every pull request and every merge-queue entry runs the tests, and the single job below is named
+# `gate` because that is the check `main`'s protection and the `merge-queue-main` ruleset require
+# (`docs/code-repository-protection.json` in a11ign/a11ign names it). `merge_group` is what lets the queue's
+# temporary branches run it: a required check that never runs on one blocks the queue for ever.
+#
+# Ubuntu only, on purpose: reading a PDF's tag tree needs no browser, no screen reader and no fleet. The last step packs
+# the package and runs it from a tarball outside the repository, because a package that works in the workspace and
+# fails when installed is the failure a first publish cannot take back.
+name: ci
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # pnpm/action-setup reads the version out of `packageManager`, and comes before setup-node because `cache: pnpm`
+      # shells out to it.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm run smoke
