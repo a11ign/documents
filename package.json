@@ -3,16 +3,22 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.34.5",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "build": "tsc --build packages/pdf",
-    "test": "tsx --test \"packages/*/src/**/*.test.ts\" \"scripts/*.test.ts\"",
+    "build": "pnpm --filter @a11ign/documents run build",
+    "typecheck": "pnpm --filter @a11ign/documents run typecheck",
+    "pretest": "pnpm run typecheck",
+    "test": "rstest run",
     "smoke": "node scripts/pack-smoke.mjs"
   },
   "devDependencies": {
+    "@a11ign/toolchain": "0.1.1",
     "@changesets/cli": "3.0.3",
+    "@rslib/core": "^1.0.3",
+    "@rstest/core": "^0.12.3",
     "@types/node": "^26.6.3",
-    "tsx": "4.23.15",
     "typescript": "^7.0.2",
     "yaml": "2.9.1"
   }

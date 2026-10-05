@@ -7,7 +7,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/index.mjs"
     }
   },
   "files": [
@@ -38,6 +38,8 @@
     "pdf-lib": "^1.17.1"
   },
   "scripts": {
-    "prepack": "tsc --build"
+    "build": "rslib build",
+    "typecheck": "tsc --noEmit",
+    "prepack": "rslib build"
   }
 }
