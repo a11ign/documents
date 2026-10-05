@@ -20,8 +20,8 @@ pnpm run smoke    # packs the package and runs it from the tarball, outside this
 ## Releasing
 
 This repository releases on its own, not with `a11ign/a11ign`. A change that should reach npm carries a changeset
-(`pnpm exec changeset`); its merge opens the **Version packages** pull request, and **merging that is the release**
-(`.github/workflows/release.yml`, `.changeset/README.md`). The publish uses npm trusted publishing over OIDC with
-provenance and no stored token.
+(`pnpm exec changeset`), and **its merge to `main` is the release**: `.github/workflows/release.yml` calls the one reusable
+per-merge workflow in `a11ign/toolchain`, which versions on a detached commit, publishes, tags and releases. There is no version
+pull request (`.changeset/README.md`). The publish uses npm trusted publishing over OIDC with provenance and no stored token.
 
 The root [`LICENSE`](LICENSE) is the package's, byte for byte.
