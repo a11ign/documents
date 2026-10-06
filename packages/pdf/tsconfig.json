@@ -1,6 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "outDir": "dist", "rootDir": "src" },
+  // `tsc` is the CHECKER here and never the builder (a11ign/toolchain, ADR 0043): Rslib writes `dist`, and `pnpm run typecheck` is
+  // `tsc --noEmit` over this file. Rslib's declaration step reads it too: it refuses a config with no explicit `rootDir`, and it emits a
+  // `.d.ts` for every file this includes, so the tests stay excluded (as they were under `tsc --build`) or `dist/index.test.d.ts` ships.
+  "extends": "@a11ign/toolchain/tsconfig.base.json",
+  "compilerOptions": { "rootDir": "src" },
   "include": ["src"],
   "exclude": ["src/**/*.test.ts"]
 }
