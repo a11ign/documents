@@ -142,3 +142,5 @@ export async function scanPdfTagTree(url: string): Promise<PdfScanResult> {
     return { ok: false, error: `could not read ${url} as a PDF: ${String(error)}` };
   }
 }
+
+// throwaway probe for a11ign/a11ign#4133: not to merge
