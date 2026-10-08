@@ -9,7 +9,7 @@ import { copyFileSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const PACKAGE_DIR = resolve("packages/pdf");
+const PACKAGE_DIR = resolve(".");
 const run = (/** @type {string} */ command, /** @type {string[]} */ args, /** @type {string} */ cwd) =>
   execFileSync(command, args, { cwd, stdio: "inherit" });
 

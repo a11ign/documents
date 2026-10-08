@@ -27,7 +27,8 @@ concurrency:
 
 jobs:
   # A releasable change needs a changeset or a `no-release:` line. `releasable-paths` is this repository's `dora` entry's `releasablePaths` in
-  # a11ign/a11ign `.agent-org/project.json`, character for character: a path that matches nothing passes every pull request. The sha is the merge
+  # a11ign/a11ign `.agent-org/project.json`, character for character: a path that matches nothing passes every pull request. THAT ENTRY STILL SAYS
+  # `packages/pdf/` until the next row (the row after a11ign/a11ign#4212, which flattened this repository) moves it to `src/`. The sha is the merge
   # commit of a11ign/toolchain#15, and Dependabot's `github-actions` entry moves it. On a merge-group entry the called job succeeds without
   # evaluating, because the pull request's own run already decided.
   changeset:
@@ -37,7 +38,7 @@ jobs:
       pull-requests: read
     uses: a11ign/toolchain/.github/workflows/changeset-required.yml@745b552ed550f44cc15c9d797718d350730540ce
     with:
-      releasable-paths: packages/pdf/
+      releasable-paths: src/
 
   # THE REQUIRED CHECK. `if: always()` because a job whose need failed is SKIPPED, and a skipped required check counts as passed; the last step
   # accepts `success` ONLY, since `changeset` succeeds on a merge-group entry rather than skipping, so anything else means it did not run.
@@ -55,6 +56,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm run smoke
+      # The shared layout check (a11ign/toolchain, ADR 0043; a11ign/a11ign#4210): a single-package repository keeps its package at the root. It runs
+      # the installed copy by path because the published `layout-check` bin has no shebang, so `npx … layout-check` is executed by `sh` and fails.
+      - run: pnpm run layout-check
       # Last and unconditional, so a red `changeset` does not hide a red test, nor the reverse.
       - name: The changeset check ran, and ran clean
         if: always() && !cancelled()
