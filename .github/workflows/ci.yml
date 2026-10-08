@@ -3,13 +3,19 @@
 # (`docs/code-repository-protection.json` in a11ign/a11ign names it). `merge_group` is what lets the queue's
 # temporary branches run it: a required check that never runs on one blocks the queue for ever.
 #
+# `gate` also waits for `changeset`, the shared check that a pull request changing a releasable path carries a changeset or a
+# `no-release:` line (a11ign/a11ign#4127, the class fix of #4084; adopted here by #4133). Without one the merge releases nothing.
+#
 # Ubuntu only, on purpose: reading a PDF's tag tree needs no browser, no screen reader and no fleet. The last step packs
 # the package and runs it from a tarball outside the repository, because a package that works in the workspace and
 # fails when installed is the failure a first publish cannot take back.
 name: ci
 
 on:
+  # `edited` because the changeset check reads the pull request's BODY: adding its `no-release:` line is an edit, and a run that did not
+  # repeat would leave the check red on a body that is now right. The concurrency group below cancels the run an edit interrupts.
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   merge_group:
 
 permissions:
@@ -20,7 +26,24 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # A releasable change needs a changeset or a `no-release:` line. `releasable-paths` is this repository's `dora` entry's `releasablePaths` in
+  # a11ign/a11ign `.agent-org/project.json`, character for character: a path that matches nothing passes every pull request. The sha is the merge
+  # commit of a11ign/toolchain#15, and Dependabot's `github-actions` entry moves it. On a merge-group entry the called job succeeds without
+  # evaluating, because the pull request's own run already decided.
+  changeset:
+    # A called workflow cannot hold more than its caller gives: with `contents: read` alone GitHub refuses the whole run at startup.
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: a11ign/toolchain/.github/workflows/changeset-required.yml@745b552ed550f44cc15c9d797718d350730540ce
+    with:
+      releasable-paths: packages/pdf/
+
+  # THE REQUIRED CHECK. `if: always()` because a job whose need failed is SKIPPED, and a skipped required check counts as passed; the last step
+  # accepts `success` ONLY, since `changeset` succeeds on a merge-group entry rather than skipping, so anything else means it did not run.
   gate:
+    needs: [changeset]
+    if: always() && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -32,3 +55,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm run smoke
+      # Last and unconditional, so a red `changeset` does not hide a red test, nor the reverse.
+      - name: The changeset check ran, and ran clean
+        if: always() && !cancelled()
+        env:
+          CHANGESET_RESULT: ${{ needs.changeset.result }}
+        run: |
+          if [ "$CHANGESET_RESULT" != "success" ]; then
+            echo "::error::the changeset job reported '$CHANGESET_RESULT', not success"
+            exit 1
+          fi
