@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const PACKAGE_DIR = resolve(".");
-const run = (/** @type {string} */ command, /** @type {string[]} */ args, /** @type {string} */ cwd) =>
+const run = (/** @type {string} */ command: string, /** @type {string[]} */ args: string[], /** @type {string} */ cwd: string) =>
   execFileSync(command, args, { cwd, stdio: "inherit" });
 
 const scratch = mkdtempSync(join(tmpdir(), "documents-pack-smoke-"));

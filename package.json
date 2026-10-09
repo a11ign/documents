@@ -42,7 +42,7 @@
     "pretest": "pnpm run typecheck",
     "test": "rstest run",
     "layout-check": "node node_modules/@a11ign/toolchain/dist/layout-check.mjs",
-    "smoke": "node scripts/pack-smoke.mjs",
+    "smoke": "node scripts/pack-smoke.ts",
     "prepack": "rslib build"
   },
   "packageManager": "pnpm@10.34.5",

@@ -1,9 +1,9 @@
 {
   "files": [
-    "isolation-smoke.mjs",
+    "isolation-smoke.ts",
     "pack-smoke.mjs",
-    "rslib.config.mjs",
-    "rstest.config.mjs"
+    "rslib.config.ts",
+    "rstest.config.ts"
   ],
   "exceptions": []
 }
