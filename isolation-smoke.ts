@@ -1,5 +1,4 @@
-// @ts-check
-// Run by `packages/guards/src/isolation-gate.mjs` from a throwaway directory OUTSIDE this repository, against the
+// Run by `scripts/pack-smoke.ts` from a throwaway directory OUTSIDE this repository, against the
 // installed tarball. Imports by PACKAGE NAME on purpose: a relative import would resolve inside the repo and
 // prove nothing.
 import assert from "node:assert/strict";
