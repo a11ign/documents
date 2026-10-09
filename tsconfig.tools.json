@@ -1,0 +1,11 @@
+{
+  // The files `tsconfig.json` cannot hold: it is Rslib's declaration config (`rootDir: src`, one `.d.ts` per included file), and these
+  // are not part of the package. `tsc` only checks them (`pnpm run typecheck` runs both configs), so `declaration` is off: with it on,
+  // `rstest.config.ts` fails TS2883 for an inferred type it would have to name in a `.d.ts` nobody emits.
+  // `isolation-smoke.ts` imports the package BY NAME (it runs against the installed tarball), so `paths` points the name at the source:
+  // checked here it needs no `dist`, which a fresh checkout does not have when `typecheck` runs.
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "rootDir": ".", "declaration": false, "paths": { "@a11ign/documents": ["./src/index.ts"] } },
+  "include": ["rslib.config.ts", "rstest.config.ts", "isolation-smoke.ts", "scripts/pack-smoke.ts"],
+  "exclude": []
+}

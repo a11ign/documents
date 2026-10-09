@@ -38,11 +38,11 @@
   },
   "scripts": {
     "build": "rslib build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tools.json",
     "pretest": "pnpm run typecheck",
     "test": "rstest run",
     "layout-check": "node node_modules/@a11ign/toolchain/dist/layout-check.mjs",
-    "smoke": "node scripts/pack-smoke.mjs",
+    "smoke": "tsx scripts/pack-smoke.ts",
     "prepack": "rslib build"
   },
   "packageManager": "pnpm@10.34.5",
@@ -52,6 +52,7 @@
     "@rslib/core": "^1.0.3",
     "@rstest/core": "^0.12.3",
     "@types/node": "^26.6.3",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "yaml": "2.9.1"
   }

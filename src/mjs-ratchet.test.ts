@@ -1,6 +1,7 @@
 /**
  * THIS REPOSITORY COUNTS ITS `.js`/`.mjs`/`.cjs` SOURCE AGAINST A COMMITTED BASELINE (a11ign/a11ign#4266; the check is
  * `@a11ign/toolchain/mjs-ratchet`, a11ign/a11ign#4243). The standard is TypeScript source and `.mjs` only as build output.
+ * THE BASELINE IS EMPTY (a11ign/a11ign#4281): the last slice is converted, so any `.js`/`.mjs`/`.cjs` file added anywhere fails here.
  *
  * The real tree is read by walking up from THIS FILE to `mjs-ratchet.baseline.json`, so moving the test (the layout flatten, #4212)
  * edits nothing. The negative controls run on a temporary tree built from the committed baseline, so none of them touches the
@@ -8,7 +9,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,42 +32,38 @@ function withTree({ present, baseline }: { present: string[]; baseline: object }
   }
 }
 
-test("the repository's real tree passes against the committed baseline", () => {
+const EMPTY = { files: [], exceptions: [] };
+
+test("the repository's real tree passes against the committed baseline, and the end state is zero", () => {
   assert.equal(real.ok, true, real.message);
-  // The positive control: the read found this repository's scripts, so 'ok' is not 'the walk read nothing'.
-  assert.ok(real.count > 0, `the ratchet counted ${real.count} files in ${real.root}`);
-  assert.equal(real.count, real.baselineCount, "the baseline is a reading of the tree: lower it with writeLoweredBaseline when files are converted");
+  // The positive control: the walk read this repository (its manifest is there and the package source is counted), so 'zero' is not
+  // 'the read found nothing'. The ratchet itself calls an empty tree red, and the controls below prove a `.mjs` is seen when one exists.
+  assert.ok(existsSync(join(real.root, "package.json")), `no package.json under ${real.root}`);
+  assert.deepEqual(committed, EMPTY, "the baseline is the end state: no files and no exceptions");
+  assert.equal(real.count, 0, "the repository holds no .js/.mjs/.cjs source");
 });
 
-test("a tree that matches its baseline passes (the fixture builder's own control)", () => {
-  withTree({ present: committed.files, baseline: committed }, (root) => {
+test("a TypeScript-only tree passes against the empty baseline (the fixture builder's own control)", () => {
+  withTree({ present: ["index.ts"], baseline: EMPTY }, (root) => {
     const result = checkMjsRatchet({ from: root });
     assert.equal(result.ok, true, result.message);
-    assert.equal(result.count, committed.files.length);
+    assert.equal(result.count, 0);
   });
 });
 
-test("a baseline with one name removed fails and names that file", () => {
-  const [removed, ...rest] = committed.files;
-  withTree({ present: committed.files, baseline: { ...committed, files: rest } }, (root) => {
-    const result = checkMjsRatchet({ from: root });
-    assert.equal(result.ok, false);
-    assert.match(result.message, new RegExp(removed.replace(/\./g, "\\.")), "the failure must name the file the baseline no longer allows");
+for (const extension of [".js", ".mjs", ".cjs"]) {
+  test(`a new ${extension} file fails against the empty baseline and is named`, () => {
+    withTree({ present: ["index.ts", `added${extension}`], baseline: EMPTY }, (root) => {
+      const result = checkMjsRatchet({ from: root });
+      assert.equal(result.ok, false);
+      assert.match(result.message, new RegExp(`added${extension.replace(".", "\\.")}`), "the failure must name the file that is not allowed");
+    });
   });
-});
-
-test("a tree holding fewer files than the baseline lists passes and says it can be lowered", () => {
-  withTree({ present: committed.files.slice(1), baseline: committed }, (root) => {
-    const result = checkMjsRatchet({ from: root });
-    assert.equal(result.ok, true, result.message);
-    assert.match(result.message, /can be lowered/);
-  });
-});
+}
 
 test("an exception with no `why` fails", () => {
-  const [excepted, ...rest] = committed.files;
-  const baseline = { files: rest, exceptions: [{ path: `src/${excepted}` }] };
-  withTree({ present: committed.files, baseline }, (root) => {
+  const baseline = { files: [], exceptions: [{ path: "src/tool.mjs" }] };
+  withTree({ present: ["index.ts", "tool.mjs"], baseline }, (root) => {
     const result = checkMjsRatchet({ from: root });
     assert.equal(result.ok, false);
     assert.match(result.message, /why/);
@@ -74,9 +71,8 @@ test("an exception with no `why` fails", () => {
 });
 
 test("an exception that carries a `why` is honoured (the control for the one above)", () => {
-  const [excepted, ...rest] = committed.files;
-  const baseline = { files: rest, exceptions: [{ path: `src/${excepted}`, why: "the tool reads only this name" }] };
-  withTree({ present: committed.files, baseline }, (root) => {
+  const baseline = { files: [], exceptions: [{ path: "src/tool.mjs", why: "the tool reads only this name" }] };
+  withTree({ present: ["index.ts", "tool.mjs"], baseline }, (root) => {
     const result = checkMjsRatchet({ from: root });
     assert.equal(result.ok, true, result.message);
   });
