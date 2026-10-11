@@ -56,6 +56,9 @@ jobs:
   # No consumer-install step follows: `agent-org-newest-tag` installs a tag of agent-org, and this package is installed from the npm registry (`kind: npm`), which
   # `pnpm run smoke` in `gate` already exercises from the packed tarball. It versions EVERY changeset in the tree, where the release versions only those no tag has
   # consumed: a superset, so a failure the release would meet is met here.
+  #
+  # THE CHECKOUT AND THE VERSION STEP'S CLONE ARE FULL-DEPTH (ceo review of documents#14: the same job hung 29 minutes in agent-org#967). `changeset version` reads git
+  # history and DEEPENS a shallow clone, and on a `--depth=1` one it spins; a `fetch-depth: 2` checkout cloned with `--depth=1` is that case.
   release-dry-run:
     runs-on: ubuntu-latest
     permissions:
@@ -63,8 +66,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # Two commits: HEAD and its first parent, which is all `touched` compares. No credential is kept: nothing here pushes.
-          fetch-depth: 2
+          # The WHOLE history, not two commits: `touched` needs only HEAD and its first parent, but the version step clones this checkout and `changeset version`
+          # deepens a shallow clone and hangs (see the job's header). No credential is kept: nothing here pushes.
+          fetch-depth: 0
           persist-credentials: false
       - name: Does the change touch what the release installs from?
         id: touched
@@ -90,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           scratch="$RUNNER_TEMP/release-dry-run"
-          git clone --quiet --depth=1 "file://$GITHUB_WORKSPACE" "$scratch"
+          git clone --quiet "file://$GITHUB_WORKSPACE" "$scratch"
           cd "$scratch"
           pnpm install --frozen-lockfile
           pnpm exec changeset version
