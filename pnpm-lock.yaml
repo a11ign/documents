@@ -15,9 +15,6 @@ importers:
       '@a11ign/toolchain':
         specifier: 0.1.5
         version: 0.1.5(@rslib/core@1.0.3(typescript@7.0.2))(@rstest/core@0.12.3)
-      '@changesets/cli':
-        specifier: 3.0.3
-        version: 3.0.3
       '@rslib/core':
         specifier: ^1.0.3
         version: 1.0.3(typescript@7.0.2)
