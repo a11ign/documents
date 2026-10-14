@@ -13,8 +13,8 @@ importers:
         version: 1.17.1
     devDependencies:
       '@a11ign/toolchain':
-        specifier: 0.1.5
-        version: 0.1.5(@rslib/core@1.0.3(typescript@7.0.2))(@rstest/core@0.12.3)
+        specifier: 0.9.0
+        version: 0.9.0(@rslib/core@1.0.3(typescript@7.0.2))(@rstest/core@0.12.3)(typescript@7.0.2)
       '@changesets/cli':
         specifier: 3.0.3
         version: 3.0.3
@@ -39,18 +39,21 @@ importers:
 
 packages:
 
-  '@a11ign/toolchain@0.1.5':
-    resolution: {integrity: sha512-T+aX/fbI1G28IL7FXaGVdBSlXry0FyiGsmYLt50MGHwAaISTDPi7zxFqOJLaVgE3BR7Ie9sQboBE3DfsKYE1DQ==}
+  '@a11ign/toolchain@0.9.0':
+    resolution: {integrity: sha512-uCAcAXaQamVsfCXKV9b3iwCelZC5Ua65UVP6oDYB4Lz0IkuOHBgKSQRNUXEIlS3D42NmoyXqO6FQxLCdcEMVyQ==}
     engines: {node: '>=22.15.0'}
     hasBin: true
     peerDependencies:
       '@rslib/core': ^1.0.3
       '@rstest/core': ^0.12.3
       '@rstest/coverage-v8': ^0.12.3
+      typescript: ^6.0.3 || ^7.0.0
     peerDependenciesMeta:
       '@rslib/core':
         optional: true
       '@rstest/coverage-v8':
+        optional: true
+      typescript:
         optional: true
 
   '@ast-grep/napi-darwin-arm64@0.45.3':
@@ -770,11 +773,12 @@ packages:
 
 snapshots:
 
-  '@a11ign/toolchain@0.1.5(@rslib/core@1.0.3(typescript@7.0.2))(@rstest/core@0.12.3)':
+  '@a11ign/toolchain@0.9.0(@rslib/core@1.0.3(typescript@7.0.2))(@rstest/core@0.12.3)(typescript@7.0.2)':
     dependencies:
       '@rstest/core': 0.12.3
     optionalDependencies:
       '@rslib/core': 1.0.3(typescript@7.0.2)
+      typescript: 7.0.2
 
   '@ast-grep/napi-darwin-arm64@0.45.3':
     optional: true
